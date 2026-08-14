@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Alchemy3D | Human Evaluation</title>
+    <title>3D Asset Editing Human Evaluation</title>
     <meta
       name="description"
       content="Blind human preference evaluation for instruction-driven 3D asset editing."
@@ -27,20 +27,19 @@
         <div class="landing-bg" aria-hidden="true"></div>
         <div class="landing-inner">
           <p class="eyebrow">GEdit3D-Bench | Blind preference</p>
-          <h1 id="landing-title">3D Edit Human Evaluation</h1>
+          <h1 id="landing-title">3D Asset Editing Human Evaluation</h1>
           <p class="lede">
             You will rate <strong id="landing-n">50</strong> randomly sampled
-            edit pairs. For each pair, read the instruction, inspect the target
-            image and source mesh, then pick the edited result that best follows
-            the instruction.
+            edit pairs. Pick the result that best edits the source while keeping
+            its identity.
           </p>
           <div class="criteria" aria-labelledby="criteria-heading">
             <p class="section-kicker" id="criteria-heading">Evaluation criteria / 评价标准</p>
             <ol class="criteria-list">
               <li>
                 <h2>Identity Preservation / 身份保持</h2>
-                <p class="criteria-en">Does the edit apply to the specified region (when specified)? Does the original asset keep its identity?</p>
-                <p class="criteria-zh">编辑是否正确作用在指定部位上（若有指定）？原资产的 identity 是否保持不变？</p>
+                <p class="criteria-en">Consider this before instruction following: it is a key indicator of editing quality. First inspect the source asset. Use the instruction and the target image to identify which part should change; every other part should stay the same (shape, pose, materials, and unrequested details). If the rest of the asset drifts or looks like a different object, it is a poor edit even when the requested change appears.</p>
+                <p class="criteria-zh">身份保持是衡量编辑质量的关键因素之一。先仔细观察 source 资产，结合 instruction 与 target image 确定要编辑的部位，其余部分应保持不变（几何、姿态、材质及未要求修改的细节）。若其它部分走样或看起来像另一个物体，即使改动出现了，仍应视为较差结果。</p>
               </li>
               <li>
                 <h2>Instruction Following / 指令遵循</h2>
@@ -53,7 +52,7 @@
                 <p class="criteria-zh">编辑后资产的美学质量：几何、材质、伪影与整体观感。</p>
               </li>
             </ol>
-            <p class="criteria-note">Pick the candidate that best satisfies these criteria. Model names are hidden (A / B / C / ...). Use Hard to select when none clearly wins.</p>
+            <p class="criteria-note">Choose the candidate that best preserves identity and then follows the target edit. Model names are hidden (A / B / C / ...). Use Hard to select when none clearly wins.</p>
           </div>
           <div class="institution-field">
             <label for="institution-input">Your current Institution / 当前机构</label>
@@ -62,9 +61,8 @@
               type="text"
               autocomplete="organization"
               maxlength="200"
-              placeholder="e.g. Tsinghua University"
+              placeholder="e.g. The University of Hong Kong"
             />
-            <p class="institution-hint" id="institution-hint">Required before starting. / 开始前必填，便于按机构统计。</p>
           </div>
           <div class="landing-actions">
             <button type="button" class="btn btn-primary" id="btn-start">

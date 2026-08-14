@@ -490,23 +490,9 @@
     }
   }
 
-  function requireInstitution() {
+  function optionalInstitution() {
     var name = readInstitutionInput();
-    var hint = $("institution-hint");
-    if (!name) {
-      if (hint) {
-        hint.textContent = "Please enter your institution. / 请填写当前机构。";
-        hint.classList.add("is-error");
-      }
-      var input = $("institution-input");
-      if (input) input.focus();
-      return "";
-    }
-    if (hint) {
-      hint.textContent = "Required before starting. / 开始前必填，便于按机构统计。";
-      hint.classList.remove("is-error");
-    }
-    persistInstitution(name);
+    if (name) persistInstitution(name);
     return name;
   }
 
@@ -1127,8 +1113,7 @@
   }
 
   function startFresh() {
-    var institution = requireInstitution();
-    if (!institution) return;
+    var institution = optionalInstitution();
     clearSavedSession();
     clearAssetCache();
     var session = createSession();
@@ -1137,11 +1122,10 @@
   }
 
   function resumeSession() {
-    var institution = requireInstitution();
-    if (!institution) return;
+    var institution = optionalInstitution();
     var saved = loadSavedSession();
     if (!saved) return;
-    saved.institution = institution;
+    if (institution) saved.institution = institution;
     clearAssetCache();
     beginSessionWithDownload(saved);
   }

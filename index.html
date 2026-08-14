@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Alchemy3D | Human Evaluation</title>
+    <meta
+      name="description"
+      content="Blind human preference evaluation for instruction-driven 3D asset editing."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      type="module"
+      src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"
+    ></script>
+  </head>
+  <body>
+    <div id="app">
+      <!-- Landing -->
+      <section id="view-landing" class="view is-active" aria-labelledby="landing-title">
+        <div class="landing-bg" aria-hidden="true"></div>
+        <div class="landing-inner">
+          <p class="eyebrow">GEdit3D-Bench | Blind preference</p>
+          <h1 id="landing-title">3D Edit Human Evaluation</h1>
+          <p class="lede">
+            You will rate <strong id="landing-n">50</strong> randomly sampled
+            edit pairs. For each pair, read the instruction, inspect the target
+            image and source mesh, then pick the edited result that best follows
+            the instruction.
+          </p>
+          <div class="criteria" aria-labelledby="criteria-heading">
+            <p class="section-kicker" id="criteria-heading">Evaluation criteria / 评价标准</p>
+            <ol class="criteria-list">
+              <li>
+                <h2>Identity Preservation / 身份保持</h2>
+                <p class="criteria-en">Does the edit apply to the specified region (when specified)? Does the original asset keep its identity?</p>
+                <p class="criteria-zh">编辑是否正确作用在指定部位上（若有指定）？原资产的 identity 是否保持不变？</p>
+              </li>
+              <li>
+                <h2>Instruction Following / 指令遵循</h2>
+                <p class="criteria-en">Does the edit follow the instruction? For this image-conditioned protocol, treat the instruction as reference and mainly judge whether the result follows the target image.</p>
+                <p class="criteria-zh">编辑是否遵循指令？本任务以 edited image 为条件，指令仅作参考，主要看结果是否遵循 target image。</p>
+              </li>
+              <li>
+                <h2>Visual Quality / 视觉质量</h2>
+                <p class="criteria-en">Aesthetic quality of the edited asset: geometry, materials, artifacts, and overall look.</p>
+                <p class="criteria-zh">编辑后资产的美学质量：几何、材质、伪影与整体观感。</p>
+              </li>
+            </ol>
+            <p class="criteria-note">Pick the candidate that best satisfies these criteria. Model names are hidden (A / B / C / ...). Use Hard to select when none clearly wins.</p>
+          </div>
+          <div class="institution-field">
+            <label for="institution-input">Your current Institution / 当前机构</label>
+            <input
+              id="institution-input"
+              type="text"
+              autocomplete="organization"
+              maxlength="200"
+              placeholder="e.g. Tsinghua University"
+            />
+            <p class="institution-hint" id="institution-hint">Required before starting. / 开始前必填，便于按机构统计。</p>
+          </div>
+          <div class="landing-actions">
+            <button type="button" class="btn btn-primary" id="btn-start">
+              Start evaluation
+            </button>
+            <button type="button" class="btn btn-ghost" id="btn-resume" hidden>
+              Resume previous session
+            </button>
+          </div>
+          <p class="meta-line" id="landing-meta" hidden></p>
+        </div>
+      </section>
+
+      <!-- Pre-download -->
+      <section id="view-download" class="view" aria-labelledby="download-title" hidden>
+        <div class="landing-bg" aria-hidden="true"></div>
+        <div class="landing-inner download-inner">
+          <p class="eyebrow">Preparing session</p>
+          <h1 id="download-title">Downloading assets</h1>
+          <p class="lede" id="download-lede">
+            Fetching images and GLBs for your random set before evaluation starts.
+          </p>
+          <p class="download-note">
+            Files are cached in this browser for the session only.
+            After you finish, you can delete them on the completion page.
+            <br />
+            文件仅缓存在本浏览器。评测结束后，可在完成页删除已下载文件。
+          </p>
+          <div class="download-panel">
+            <div class="download-progress-track" aria-hidden="true">
+              <div class="download-progress-fill" id="download-progress-fill"></div>
+            </div>
+            <div class="download-stats">
+              <span id="download-percent">0%</span>
+              <span id="download-counts">0 / 0 files</span>
+            </div>
+            <p class="download-bytes" id="download-bytes">0 MB / ? MB</p>
+            <p class="download-current" id="download-current">Starting...</p>
+            <p class="download-error" id="download-error" hidden></p>
+          </div>
+          <div class="landing-actions">
+            <button type="button" class="btn btn-ghost" id="btn-cancel-download" hidden>
+              Cancel
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Trial -->
+      <section id="view-trial" class="view" aria-labelledby="trial-heading" hidden>
+        <header class="topbar">
+          <div class="topbar-brand">
+            <span class="mark">Alchemy3D</span>
+            <span class="topbar-sep">Human Eval</span>
+          </div>
+          <div class="progress-wrap" aria-live="polite">
+            <div class="progress-track">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span class="progress-text" id="progress-text">1 / 50</span>
+          </div>
+          <div class="topbar-actions">
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-skip">
+              Skip
+            </button>
+          </div>
+        </header>
+
+        <div class="trial-body">
+          <div class="prompt-panel">
+            <p class="section-kicker" id="trial-heading">Instruction</p>
+            <p class="instruction" id="instruction-text"></p>
+            <p class="edit-type" id="edit-type-badge"></p>
+          </div>
+
+          <div class="context-grid">
+            <figure class="panel target-panel">
+              <figcaption>Target image</figcaption>
+              <div class="target-frame">
+                <img id="target-image" alt="Target conditioning image" />
+                <div class="panel-status" id="target-status">Loading...</div>
+              </div>
+            </figure>
+            <figure class="panel source-panel">
+              <figcaption>Source mesh</figcaption>
+              <div class="viewer-frame" id="source-frame">
+                <div class="panel-status" id="source-status">Loading GLB...</div>
+              </div>
+            </figure>
+          </div>
+
+          <div class="results-block">
+            <div class="results-head">
+              <p class="section-kicker">Edited candidates</p>
+              <p class="hint">
+                Pick the result that best matches the instruction and target.
+                Drag each viewer independently to orbit / zoom.
+              </p>
+            </div>
+            <div class="results-grid" id="results-grid" role="radiogroup" aria-label="Edited candidates"></div>
+          </div>
+        </div>
+
+        <footer class="trial-footer">
+          <p class="choice-summary" id="choice-summary">Select one candidate to continue.</p>
+          <button type="button" class="btn btn-primary" id="btn-confirm" disabled>
+            Confirm &amp; next
+          </button>
+        </footer>
+      </section>
+
+      <!-- Done -->
+      <section id="view-done" class="view" aria-labelledby="done-title" hidden>
+        <div class="done-inner">
+          <p class="eyebrow">Session complete</p>
+          <h1 id="done-title">Thank you</h1>
+          <p class="lede" id="done-summary"></p>
+          <div id="rates-root" class="rates" hidden></div>
+          <div class="landing-actions">
+            <button type="button" class="btn btn-primary" id="btn-submit">
+              Submit results / 提交结果
+            </button>
+            <button type="button" class="btn btn-ghost" id="btn-download">
+              Download JSON
+            </button>
+            <button type="button" class="btn btn-ghost" id="btn-delete-assets">
+              Delete downloaded assets / 删除已下载文件
+            </button>
+            <button type="button" class="btn btn-ghost" id="btn-restart">
+              Start a new session
+            </button>
+          </div>
+          <p class="meta-line" id="submit-status"></p>
+          <p class="meta-line" id="delete-assets-status"></p>
+        </div>
+      </section>
+    </div>
+
+    <script src="eval-config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

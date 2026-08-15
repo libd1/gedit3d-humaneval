@@ -401,7 +401,7 @@ h1 {
 }
 
 .trial-body {
-  width: min(1680px, calc(100% - 1.5rem));
+  width: min(1760px, calc(100% - 1.25rem));
   margin: 0 auto;
   padding: 1.25rem 0 6.5rem;
   display: grid;
@@ -477,7 +477,7 @@ h1 {
 .viewer-frame {
   position: relative;
   aspect-ratio: 1 / 1;
-  min-height: 420px;
+  min-height: min(48vw, 520px);
   background:
     linear-gradient(45deg, rgba(26, 36, 32, 0.04) 25%, transparent 25%),
     linear-gradient(-45deg, rgba(26, 36, 32, 0.04) 25%, transparent 25%),
@@ -536,8 +536,8 @@ model-viewer {
 
 .results-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
-  gap: 1.1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
 }
 
 .candidate {
@@ -591,7 +591,7 @@ model-viewer {
   text-align: center;
   padding: 1.25rem 1rem;
   aspect-ratio: 1 / 1;
-  min-height: 380px;
+  min-height: min(72vw, 560px);
   background:
     linear-gradient(160deg, rgba(138, 90, 43, 0.08), transparent 55%),
     var(--viewer-bg);
@@ -654,7 +654,7 @@ model-viewer {
 
 .candidate .viewer-frame {
   aspect-ratio: 1 / 1;
-  min-height: 380px;
+  min-height: min(72vw, 560px);
 }
 
 .trial-footer {
@@ -752,6 +752,15 @@ model-viewer {
 
   .context-grid {
     grid-template-columns: 1fr;
+  }
+
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .candidate .viewer-frame,
+  .candidate-hard .hard-body {
+    min-height: min(88vw, 420px);
   }
 
   .trial-footer {

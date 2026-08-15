@@ -1092,10 +1092,27 @@
       body: JSON.stringify(exportPayload())
     })
       .then(function (res) {
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        return res.text();
+        return res.text().then(function (text) {
+          return { ok: res.ok, status: res.status, text: text || "" };
+        });
       })
-      .then(function () {
+      .then(function (result) {
+        var text = result.text || "";
+        var denied =
+          /Access Denied|You need access|You need permission/i.test(text);
+        if (denied || result.status === 401 || result.status === 403) {
+          throw new Error("ACCESS_DENIED");
+        }
+        if (!result.ok) throw new Error("HTTP " + result.status);
+        var parsed = null;
+        try {
+          parsed = JSON.parse(text);
+        } catch (err) {
+          parsed = null;
+        }
+        if (parsed && parsed.ok === false) {
+          throw new Error(parsed.error || "Server rejected payload");
+        }
         if (state.session) {
           state.session.submitted = true;
           saveSession();
@@ -1104,10 +1121,11 @@
       })
       .catch(function (err) {
         console.error(err);
-        setSubmitUi(
-          "error",
-          "Submit failed. Please retry. / 提交失败，请重试。"
-        );
+        var msg =
+          err && err.message === "ACCESS_DENIED"
+            ? "Cloud endpoint is not public. Redeploy Apps Script Web App with access = Anyone. / 云端接口未对「任何人」开放，请重新部署。"
+            : "Submit failed. Please retry. / 提交失败，请重试。";
+        setSubmitUi("error", msg);
       });
   }
 

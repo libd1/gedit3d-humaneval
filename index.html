@@ -52,7 +52,12 @@
                 <p class="criteria-zh">编辑后资产的美学质量：几何、材质、伪影与整体观感。</p>
               </li>
             </ol>
-            <p class="criteria-note">Choose the candidate that best preserves identity and then follows the target edit. Model names are hidden (A / B / C / ...). Use Hard to select when none clearly wins.</p>
+            <p class="criteria-note">Choose the candidate that best preserves identity and then follows the target edit. Model names are hidden (A / B / C / ...).</p>
+            <div class="hard-callout" aria-labelledby="hard-heading">
+              <h2 id="hard-heading">Hard to Select / 难以选择</h2>
+              <p class="criteria-en">If <strong>all</strong> candidates show a severe problem on any criterion (identity preservation, instruction following, or visual quality), choose <strong>Hard to Select</strong>. Do <em>not</em> pick the “least bad” option when none is acceptable.</p>
+              <p class="criteria-zh">若<strong>所有</strong>候选结果在某些评价维度出现严重问题，请选择 <strong>Hard to Select</strong>。不要在都不可接受时勉强选出一个“相对不那么差”的样本。</p>
+            </div>
           </div>
           <div class="institution-field">
             <label for="institution-input">Your current Institution / 当前机构</label>
@@ -179,14 +184,15 @@
         <div class="done-inner">
           <p class="eyebrow">Session complete</p>
           <h1 id="done-title">Thank you</h1>
-          <p class="lede" id="done-summary"></p>
-          <div id="rates-root" class="rates" hidden></div>
+          <p class="lede" id="done-summary">
+            Your evaluation is complete. Results are being submitted automatically.
+            <br />
+            评测已完成，结果正在自动提交。
+          </p>
+          <p class="meta-line" id="submit-status">Submitting... / 正在提交...</p>
           <div class="landing-actions">
-            <button type="button" class="btn btn-primary" id="btn-submit">
-              Submit results / 提交结果
-            </button>
-            <button type="button" class="btn btn-ghost" id="btn-download">
-              Download JSON
+            <button type="button" class="btn btn-primary" id="btn-retry-submit" hidden>
+              Retry submit / 重新提交
             </button>
             <button type="button" class="btn btn-ghost" id="btn-delete-assets">
               Delete downloaded assets / 删除已下载文件
@@ -195,7 +201,6 @@
               Start a new session
             </button>
           </div>
-          <p class="meta-line" id="submit-status"></p>
           <p class="meta-line" id="delete-assets-status"></p>
         </div>
       </section>

@@ -909,6 +909,7 @@
   function finishSession() {
     disposeViewers();
     state.session.completedAt = new Date().toISOString();
+    state.session.submitted = false;
     saveSession();
     var delBtn = $("btn-delete-assets");
     var delStatus = $("delete-assets-status");
@@ -917,29 +918,17 @@
       delBtn.textContent = "Delete downloaded assets / 删除已下载文件";
     }
     if (delStatus) delStatus.textContent = "";
-    var answered = state.session.responses.filter(function (r) {
-      return !r.skipped && !r.hardToSelect;
-    }).length;
-    var hardCount = state.session.responses.filter(function (r) {
-      return !!r.hardToSelect;
-    }).length;
-    var skipped = state.session.responses.filter(function (r) {
-      return !!r.skipped;
-    }).length;
-    $("done-summary").textContent =
-      "Recorded " +
-      answered +
-      " preference" +
-      (answered === 1 ? "" : "s") +
-      (hardCount ? ", " + hardCount + " hard to select" : "") +
-      (skipped ? ", " + skipped + " skipped" : "") +
-      ". Please submit the results.";
-    renderRates(exportPayload());
-    var submitBtn = $("btn-submit");
+    var retryBtn = $("btn-retry-submit");
+    if (retryBtn) retryBtn.hidden = true;
+    var summary = $("done-summary");
+    if (summary) {
+      summary.innerHTML =
+        "Your evaluation is complete. Results are being submitted automatically.<br />评测已完成，结果正在自动提交。";
+    }
     var submitStatus = $("submit-status");
-    if (submitBtn) submitBtn.disabled = false;
-    if (submitStatus) submitStatus.textContent = "";
+    if (submitStatus) submitStatus.textContent = "Submitting... / 正在提交...";
     showView("done");
+    submitResults();
   }
 
   function responseChoice(r) {
@@ -1058,19 +1047,44 @@
     return (window.EVAL_CONFIG && window.EVAL_CONFIG.submitUrl) || "";
   }
 
+  function setSubmitUi(stateName, message) {
+    var status = $("submit-status");
+    var retryBtn = $("btn-retry-submit");
+    var summary = $("done-summary");
+    if (status) status.textContent = message || "";
+    if (retryBtn) {
+      retryBtn.hidden = stateName !== "error";
+      retryBtn.disabled = false;
+    }
+    if (summary) {
+      if (stateName === "ok") {
+        summary.innerHTML =
+          "Thank you for contributing to this evaluation.<br />感谢您完成本次评测。";
+      } else if (stateName === "error") {
+        summary.innerHTML =
+          "Your answers were saved locally, but cloud submit failed. Please retry.<br />答案已保存在本地，但云端提交失败，请重试。";
+      } else {
+        summary.innerHTML =
+          "Your evaluation is complete. Results are being submitted automatically.<br />评测已完成，结果正在自动提交。";
+      }
+    }
+  }
+
   function submitResults() {
     var url = submitUrl();
-    var status = $("submit-status");
-    var btn = $("btn-submit");
+    var retryBtn = $("btn-retry-submit");
+    if (retryBtn) {
+      retryBtn.hidden = true;
+      retryBtn.disabled = true;
+    }
     if (!url) {
-      if (status) {
-        status.textContent =
-          "No cloud endpoint configured. Set EVAL_CONFIG.submitUrl (see collect.gs). / 未配置云端接口。";
-      }
+      setSubmitUi(
+        "error",
+        "No cloud endpoint configured. / 未配置云端接口。"
+      );
       return;
     }
-    if (btn) btn.disabled = true;
-    if (status) status.textContent = "Submitting... / 正在提交...";
+    setSubmitUi("pending", "Submitting... / 正在提交...");
     fetch(url, {
       method: "POST",
       redirect: "follow",
@@ -1082,16 +1096,18 @@
         return res.text();
       })
       .then(function () {
-        if (status) status.textContent = "Submitted. Thank you. / 已提交，谢谢。";
-        if (btn) btn.textContent = "Submitted / 已提交";
+        if (state.session) {
+          state.session.submitted = true;
+          saveSession();
+        }
+        setSubmitUi("ok", "Submitted successfully. / 已成功提交。");
       })
       .catch(function (err) {
         console.error(err);
-        if (status) {
-          status.textContent =
-            "Submit failed, please download JSON instead. / 提交失败，请改为下载 JSON。";
-        }
-        if (btn) btn.disabled = false;
+        setSubmitUi(
+          "error",
+          "Submit failed. Please retry. / 提交失败，请重试。"
+        );
       });
   }
 
@@ -1148,10 +1164,9 @@
     }
     $("btn-confirm").addEventListener("click", confirmAndNext);
     $("btn-skip").addEventListener("click", skipTrial);
-    if ($("btn-submit")) {
-      $("btn-submit").addEventListener("click", submitResults);
+    if ($("btn-retry-submit")) {
+      $("btn-retry-submit").addEventListener("click", submitResults);
     }
-    $("btn-download").addEventListener("click", downloadResults);
     if ($("btn-delete-assets")) {
       $("btn-delete-assets").addEventListener("click", deleteDownloadedAssets);
     }

@@ -5,5 +5,5 @@
  * Paste the Web App URL below.
  */
 window.EVAL_CONFIG = {
-  submitUrl: "https://script.google.com/macros/s/AKfycbxWeU18yo3JyOcMYoPibUcZq2YO_bxy7dR40gQN7wKuTl_EBmAS9-571dr86KKZNWWi/exec"
+  submitUrl: "https://script.google.com/macros/s/AKfycbwtIYFc8U80DZDR_8VvUWIaexLCpiiqbrAgWMLEbbwGeAZ515jhjnLVeI47aSDk3eoLew/exec"
 };

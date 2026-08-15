@@ -450,8 +450,9 @@ h1 {
 
 .context-grid {
   display: grid;
-  grid-template-columns: minmax(320px, 0.95fr) minmax(380px, 1.15fr);
+  grid-template-columns: minmax(160px, 0.42fr) minmax(380px, 1.58fr);
   gap: 1rem;
+  align-items: start;
 }
 
 .panel {
@@ -473,7 +474,6 @@ h1 {
   border-bottom: 1px solid var(--line);
 }
 
-.target-frame,
 .viewer-frame {
   position: relative;
   aspect-ratio: 1 / 1;
@@ -486,6 +486,25 @@ h1 {
     var(--viewer-bg);
   background-size: 18px 18px;
   background-position: 0 0, 0 9px, 9px -9px, -9px 0;
+}
+
+.target-panel {
+  max-width: 240px;
+}
+
+.target-frame {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  min-height: 0;
+  max-height: 220px;
+  background:
+    linear-gradient(45deg, rgba(26, 36, 32, 0.04) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(26, 36, 32, 0.04) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(26, 36, 32, 0.04) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(26, 36, 32, 0.04) 75%),
+    var(--viewer-bg);
+  background-size: 14px 14px;
+  background-position: 0 0, 0 7px, 7px -7px, -7px 0;
 }
 
 .target-frame img {
@@ -577,32 +596,40 @@ model-viewer {
   border-color: rgba(138, 90, 43, 0.28);
   display: flex;
   flex-direction: column;
+  max-width: 280px;
+  justify-self: start;
+  align-self: start;
 }
 
 .candidate-hard .candidate-label {
   color: var(--warn);
+  padding: 0.4rem 0.65rem;
+  font-size: 0.9rem;
 }
 
 .candidate-hard .hard-body {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 1.25rem 1rem;
-  aspect-ratio: 1 / 1;
-  min-height: min(72vw, 560px);
+  padding: 0.85rem 0.75rem;
+  aspect-ratio: auto;
+  min-height: 0;
+  max-height: none;
   background:
     linear-gradient(160deg, rgba(138, 90, 43, 0.08), transparent 55%),
     var(--viewer-bg);
   color: var(--ink-soft);
   font-family: var(--font-ui);
-  font-size: 1rem;
+  font-size: 0.88rem;
   font-weight: 500;
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 .candidate-hard .btn-pick {
+  padding: 0.5rem 0.65rem;
+  font-size: 0.9rem;
   background: rgba(138, 90, 43, 0.1);
   color: var(--warn);
 }
@@ -758,9 +785,25 @@ model-viewer {
     grid-template-columns: 1fr;
   }
 
-  .candidate .viewer-frame,
-  .candidate-hard .hard-body {
+  .candidate .viewer-frame {
     min-height: min(88vw, 420px);
+  }
+
+  .target-panel {
+    max-width: 200px;
+  }
+
+  .target-frame {
+    max-height: 180px;
+  }
+
+  .candidate-hard {
+    max-width: 100%;
+  }
+
+  .candidate-hard .hard-body {
+    min-height: 0;
+    padding: 0.75rem;
   }
 
   .trial-footer {

@@ -416,7 +416,7 @@ body:has(#view-trial:not([hidden])) {
   flex: 1 1 auto;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(168px, 210px) minmax(0, 1fr);
+  grid-template-columns: minmax(200px, 250px) minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr);
   gap: 0.55rem 0.75rem;
   align-content: stretch;
@@ -526,7 +526,7 @@ body:has(#view-trial:not([hidden])) {
   aspect-ratio: 1 / 1;
   min-height: 0;
   width: 100%;
-  max-height: min(28vh, 220px);
+  max-height: min(34vh, 270px);
   background:
     linear-gradient(45deg, rgba(26, 36, 32, 0.04) 25%, transparent 25%),
     linear-gradient(-45deg, rgba(26, 36, 32, 0.04) 25%, transparent 25%),
@@ -639,7 +639,7 @@ model-viewer {
   border-color: rgba(138, 90, 43, 0.28);
   display: flex;
   flex-direction: column;
-  max-width: 220px;
+  max-width: 270px;
   justify-self: start;
   align-self: start;
   height: auto;
@@ -658,7 +658,7 @@ model-viewer {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 0.85rem 0.75rem;
+  padding: 1.05rem 0.9rem;
   aspect-ratio: auto;
   min-height: 0;
   max-height: none;
@@ -667,7 +667,7 @@ model-viewer {
     var(--viewer-bg);
   color: var(--ink-soft);
   font-family: var(--font-ui);
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   font-weight: 500;
   line-height: 1.4;
 }
@@ -860,7 +860,7 @@ model-viewer {
 
   .target-frame,
   .source-panel .viewer-frame {
-    max-height: 160px;
+    max-height: 190px;
   }
 
   .results-block {

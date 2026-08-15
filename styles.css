@@ -401,7 +401,7 @@ h1 {
 }
 
 .trial-body {
-  width: min(1280px, calc(100% - 2rem));
+  width: min(1680px, calc(100% - 1.5rem));
   margin: 0 auto;
   padding: 1.25rem 0 6.5rem;
   display: grid;
@@ -450,7 +450,7 @@ h1 {
 
 .context-grid {
   display: grid;
-  grid-template-columns: minmax(220px, 0.9fr) minmax(280px, 1.1fr);
+  grid-template-columns: minmax(320px, 0.95fr) minmax(380px, 1.15fr);
   gap: 1rem;
 }
 
@@ -477,6 +477,7 @@ h1 {
 .viewer-frame {
   position: relative;
   aspect-ratio: 1 / 1;
+  min-height: 420px;
   background:
     linear-gradient(45deg, rgba(26, 36, 32, 0.04) 25%, transparent 25%),
     linear-gradient(-45deg, rgba(26, 36, 32, 0.04) 25%, transparent 25%),
@@ -535,8 +536,8 @@ model-viewer {
 
 .results-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+  gap: 1.1rem;
 }
 
 .candidate {
@@ -590,6 +591,7 @@ model-viewer {
   text-align: center;
   padding: 1.25rem 1rem;
   aspect-ratio: 1 / 1;
+  min-height: 380px;
   background:
     linear-gradient(160deg, rgba(138, 90, 43, 0.08), transparent 55%),
     var(--viewer-bg);
@@ -652,6 +654,7 @@ model-viewer {
 
 .candidate .viewer-frame {
   aspect-ratio: 1 / 1;
+  min-height: 380px;
 }
 
 .trial-footer {

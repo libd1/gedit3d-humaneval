@@ -418,42 +418,99 @@
     } catch (err) {}
   }
 
-  var SESSION_QUOTA = {
-    structural: 30, // add + remove + replace
+  // Per-type quotas (50 total). Structural types are balanced, not pooled.
+  var DEFAULT_SESSION_QUOTA = {
+    add: 10,
+    remove: 10,
+    replace: 10,
     animation: 10,
-    appearance: 10
+    local_appearance: 5,
+    global_appearance: 5
   };
 
-  function sampleQuotaGroup(pool, editTypes, n) {
-    var allow = {};
-    editTypes.forEach(function (t) {
-      allow[t] = true;
-    });
+  function sessionQuota() {
+    var q = (state.manifest && state.manifest.quota) || DEFAULT_SESSION_QUOTA;
+    return {
+      add: q.add | 0,
+      remove: q.remove | 0,
+      replace: q.replace | 0,
+      animation: q.animation | 0,
+      local_appearance: q.local_appearance | 0,
+      global_appearance: q.global_appearance | 0
+    };
+  }
+
+  function sampleByType(pool, editType, n) {
     var subset = pool.filter(function (s) {
-      return allow[String(s.edit_type || "").toLowerCase()];
+      return String(s.edit_type || "").toLowerCase() === editType;
     });
     return sampleN(subset, n);
   }
 
+  /** Draw per-type quotas; redistribute shortfalls within the same family. */
+  function sampleWithQuotas(pool, quotas, order, families) {
+    var picked = [];
+    var shortfall = 0;
+    var takenIds = {};
+    order.forEach(function (t) {
+      var want = quotas[t] | 0;
+      var got = sampleByType(pool, t, want).filter(function (s) {
+        return !takenIds[s.id];
+      });
+      got.forEach(function (s) {
+        takenIds[s.id] = true;
+        picked.push(s);
+      });
+      shortfall += Math.max(0, want - got.length);
+    });
+    if (shortfall > 0 && families && families.length) {
+      families.forEach(function (family) {
+        if (shortfall <= 0) return;
+        var extra = pool.filter(function (s) {
+          var t = String(s.edit_type || "").toLowerCase();
+          return family.indexOf(t) !== -1 && !takenIds[s.id];
+        });
+        var fill = sampleN(extra, shortfall);
+        fill.forEach(function (s) {
+          takenIds[s.id] = true;
+          picked.push(s);
+        });
+        shortfall -= fill.length;
+      });
+    }
+    return picked;
+  }
+
   function createSession() {
     var pool = (state.manifest.samples || []).filter(isSampleEligible);
-    var structural = sampleQuotaGroup(
+    var quotas = sessionQuota();
+    var structural = sampleWithQuotas(
       pool,
+      quotas,
       ["add", "remove", "replace"],
-      SESSION_QUOTA.structural
+      [["add", "remove", "replace"]]
     );
-    var animation = sampleQuotaGroup(pool, ["animation"], SESSION_QUOTA.animation);
-    var appearance = sampleQuotaGroup(
+    var animation = sampleWithQuotas(pool, quotas, ["animation"], [["animation"]]);
+    var appearance = sampleWithQuotas(
       pool,
+      quotas,
       ["local_appearance", "global_appearance"],
-      SESSION_QUOTA.appearance
+      [["local_appearance", "global_appearance"]]
     );
     var picked = shuffle(structural.concat(animation, appearance));
     var quota = {
-      structural: structural.length,
-      animation: animation.length,
-      appearance: appearance.length
+      add: 0,
+      remove: 0,
+      replace: 0,
+      animation: 0,
+      local_appearance: 0,
+      global_appearance: 0,
+      total: picked.length
     };
+    picked.forEach(function (s) {
+      var t = String(s.edit_type || "").toLowerCase();
+      if (quota[t] !== undefined) quota[t] += 1;
+    });
     return {
       sessionId: uid(),
       startedAt: new Date().toISOString(),
